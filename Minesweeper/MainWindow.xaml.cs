@@ -39,7 +39,7 @@ public partial class GameWindow : Window
 
     private static void CheckCell (object sender, MouseButtonEventArgs e)
     {
-     //   if (!_canPlay) { return; }
+        if (!_canPlay) { return; }
 
         var border = sender as Border;
         var row = Grid.GetRow(border);
