@@ -1,4 +1,4 @@
-﻿namespace Minesweeper;
+﻿namespace Minesweeper.Models;
 
 public enum CheckResult
 {

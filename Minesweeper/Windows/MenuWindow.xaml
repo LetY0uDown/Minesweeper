@@ -1,0 +1,38 @@
+﻿<Window x:Class="Minesweeper.Windows.MenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:Minesweeper.ViewModels"
+        mc:Ignorable="d"
+        Title="MenuWindow"
+        Height="350" Width="550"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Window.DataContext>
+        <viewModel:MenuViewModel />
+    </Window.DataContext>
+    
+    <Border Background="{DynamicResource MaterialDesignDarkBackground}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            
+            <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="150" Height="75"
+                    Content="Play" FontSize="24"
+                    Command="{Binding PlayCommand}"/>
+
+            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                <Slider Margin="25 0" Minimum="5" Maximum="25"
+                        Value="{Binding FieldSize}"/>
+
+                <TextBlock HorizontalAlignment="Center" Text="{Binding StringFormat=Field size: {0},
+                                                                       Path=FieldSize, UpdateSourceTrigger=PropertyChanged}"
+                           Foreground="{DynamicResource MaterialDesignDarkForeground}"
+                           FontSize="22"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

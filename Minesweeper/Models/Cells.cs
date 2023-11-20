@@ -3,13 +3,15 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Minesweeper;
+namespace Minesweeper.Models;
 
 public static class Cells
 {
     private readonly static List<Cell> _cells = [];
 
     private static int _fieldSize;
+
+    public static int BombsCount { get; set; } = 0;
 
     public static Cell? GetCell (int row, int col)
     {
@@ -31,7 +33,18 @@ public static class Cells
         return [up, right, down, left, upLeft, upRight, downLeft, downRight];
     }
 
-    public static void GenerateCells (int fieldSize, Grid playGrid, MouseButtonEventHandler checkCallback)
+    public static void RevealField()
+    {
+        _cells.ForEach(c => {
+            if (!c.IsOpen) {
+                c.Reveal();
+            }
+        });
+    }
+
+    public static void GenerateCells (int fieldSize, Grid playGrid,
+                                      MouseButtonEventHandler checkCellEvent,
+                                      MouseButtonEventHandler markBombEvent)
     {
         _fieldSize = fieldSize;
 
@@ -45,6 +58,8 @@ public static class Cells
 
                 var isBomb = Random.Shared.Next(1, 101) > 90;
 
+                if (isBomb) { BombsCount++; }
+
                 var cell = new Cell(isBomb, y, x, border);
                 _cells.Add(cell);
 
@@ -52,42 +67,27 @@ public static class Cells
                 Grid.SetRow(border, y);
                 Grid.SetColumn(border, x);
 
-                border.MouseLeftButtonDown += checkCallback;
-                border.MouseRightButtonDown += MarkBomb;
+                border.MouseLeftButtonDown += checkCellEvent;
+                border.MouseRightButtonDown += markBombEvent;
             };
         }
     }
 
-    public static void CalculateBombsCounts ()
+    public static int CalculateBombsCounts ()
     {
         for (int x = 0; x < _fieldSize; x++) {
             for (int y = 0; y < _fieldSize; y++) {
                 var cell = GetCell(y, x);
 
                 var neighbors = GetNeighbors(y, x);
-                var bombs = 0;
-
-                neighbors.ForEach(neighbor => {
-                    if (neighbor is not null && neighbor.IsBomb) {
-                        bombs++;
-                    }
-                });
+                var count = neighbors.Count(cell => cell is not null && cell.IsBomb);
 
                 if (cell is not null) {
-                    cell.BombsNearby = bombs;
+                    cell.BombsNearby = count;
                 }
             }
         }
-    }
 
-    private static void MarkBomb (object sender, MouseButtonEventArgs e)
-    {
-        var border = sender as Border;
-        var row = Grid.GetRow(border);
-        var col = Grid.GetColumn(border);
-
-        var cell = GetCell(row, col);
-
-        cell?.MarkAsBomb();
+        return _cells.Count(cell => cell.IsBomb);
     }
 }
