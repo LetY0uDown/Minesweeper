@@ -1,5 +1,6 @@
 ﻿using Minesweeper.Models;
 using Minesweeper.Tools;
+using Minesweeper.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -21,10 +22,21 @@ public sealed class GameViewModel : ViewModel
         };
 
         _timer.Tick += TimerTick;
+
+        PlayCommand = new(() => {
+            App.ChangeMainWindow(new GameWindow(FieldSize));
+        });
     }
 
+    public Action<string> GameOverEvent { get; set; }
+
+    public UICommand PlayCommand { get; private init; }
+
+    public int FieldSize { get; set; } = 5;
+    public bool IsGameOver { get; private set; } = false;
+
     public int BombsLeft { get; private set; }
-    
+
     public string Time { get; private set; } = null!;
 
     private void TimerTick (object? sender, EventArgs e)
@@ -33,7 +45,7 @@ public sealed class GameViewModel : ViewModel
         _time += _interval;
     }
 
-    public void RenderField(int fieldSize, Border gameField)
+    public void RenderField (int fieldSize, Border gameField)
     {
         var playGrid = new Grid();
         gameField.Child = playGrid;
@@ -61,6 +73,12 @@ public sealed class GameViewModel : ViewModel
             cell.MarkAsBomb();
             BombsLeft--;
         }
+
+        if (BombsLeft == 0) {
+            if (!Cells.UnmarkedBombsLeft()) {
+                GameOver("You won!");
+            }
+        }
     }
 
     private void CheckCell (object sender, MouseButtonEventArgs e)
@@ -74,7 +92,15 @@ public sealed class GameViewModel : ViewModel
         var res = cell?.Check();
 
         if (res is not null and CheckResult.Bomb) {
-            Cells.RevealField();
+            GameOver("Game over!");
         }
+    }
+
+    private void GameOver (string msg)
+    {
+        _timer.Stop();
+        Cells.RevealField();
+        IsGameOver = true;
+        GameOverEvent(msg);
     }
 }

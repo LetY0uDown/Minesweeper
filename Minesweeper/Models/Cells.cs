@@ -42,10 +42,17 @@ public static class Cells
         });
     }
 
+    public static bool UnmarkedBombsLeft()
+    {
+        return _cells.Any(cell => cell.IsBomb && !cell.MarkedBomb);
+    }
+
     public static void GenerateCells (int fieldSize, Grid playGrid,
                                       MouseButtonEventHandler checkCellEvent,
                                       MouseButtonEventHandler markBombEvent)
     {
+        _cells.Clear();
+        
         _fieldSize = fieldSize;
 
         for (int x = 0; x < _fieldSize; x++) {

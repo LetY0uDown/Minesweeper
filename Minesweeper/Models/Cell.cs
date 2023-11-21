@@ -28,7 +28,8 @@ public class Cell
 
     public int BombsNearby { get; set; }
 
-    public bool MarkedAsBomb { get; private set; }
+    public bool MarkedBomb { get; private set; }
+    public bool MarkedCorrectly { get; private set; }
 
     public void Reveal()
     {
@@ -49,7 +50,7 @@ public class Cell
 
     public void Open ()
     {
-        if (IsOpen || MarkedAsBomb || IsBomb) { return; }
+        if (IsOpen || MarkedBomb || IsBomb) { return; }
 
         IsOpen = true;
         
@@ -119,7 +120,8 @@ public class Cell
     {
         if (IsOpen) { return; }
 
-        MarkedAsBomb = true;
+        MarkedBomb = true;
+        MarkedCorrectly = IsBomb;
 
         Animator.AnimateBackground(_border, _border.Background, Brushes.Pink,
                                    _animDuration);

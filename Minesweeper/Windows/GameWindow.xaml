@@ -4,11 +4,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:Minesweeper.ViewModels"
+        xmlns:converters="clr-namespace:Minesweeper.Tools.Converters"
+        xmlns:icon="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d"
         Height="850" Width="850"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         Background="Transparent" AllowsTransparency="True"
         WindowStyle="None">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
+    
     <Window.DataContext>
         <viewModel:GameViewModel />
     </Window.DataContext>
@@ -20,6 +29,19 @@
                 <RowDefinition Height="0.05*" />
                 <RowDefinition />
             </Grid.RowDefinitions>
+            <!-- Title bar -->
+            <Grid MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+                <TextBlock Text="Minesweeper" Foreground="SteelBlue"
+                           FontWeight="DemiBold" VerticalAlignment="Center" Margin="10 0"
+                           FontSize="20"/>
+
+                <Button HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFlatButton}"
+                        Click="ExitButtonClick">
+                    <Viewbox Margin="2">
+                        <icon:ImageAwesome Icon="Close" />                        
+                    </Viewbox>
+                </Button>
+            </Grid>
 
             <Border Grid.Row="1">
                 <Grid>
@@ -28,7 +50,7 @@
                                Foreground="SteelBlue"
                                Margin="10 0 0 0"
                                VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                    
+
                     <TextBlock Text="{Binding StringFormat=Bombs left: {0}, Path=BombsLeft,
                                               UpdateSourceTrigger=PropertyChanged}"
                                FontSize="22" FontWeight="DemiBold"
@@ -37,8 +59,38 @@
                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>
+            
+            <!-- Game -->
+            <Border Grid.Row="2" x:Name="GameField" Background="#252628" Margin="5" />
 
-            <Border Grid.Row="2" x:Name="GameField" Background="#252628" Margin="5"/>
+            <Border Grid.Row="2" Visibility="{Binding IsGameOver, Converter={StaticResource VisibilityConverter}}"
+                    x:Name="GameOverPanel">
+                <Border Margin="200 250" Background="#252628" CornerRadius="15">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2"/>
+                    </Border.Effect>
+                    <StackPanel>                        
+                        <TextBlock x:Name="GameOverTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontSize="64" Foreground="SteelBlue" FontWeight="DemiBold"/>
+
+                        <Button HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Width="150" Height="75"
+                                Grid.Row="1" Margin="0 15 0 0"
+                                Content="Play again" FontSize="24"
+                                Command="{Binding PlayCommand}"/>
+
+                        <StackPanel Grid.Row="2" VerticalAlignment="Top" Margin="0 50 0 0">
+                            <Slider Margin="25 0" Minimum="5" Maximum="25"
+                                    Value="{Binding FieldSize}"/>
+
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding StringFormat=Field size: {0},
+                                                                    Path=FieldSize, UpdateSourceTrigger=PropertyChanged}"
+                                       Foreground="{DynamicResource MaterialDesignDarkForeground}"
+                                       FontSize="22"/>          
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
         </Grid>
     </Border>
 </Window>
